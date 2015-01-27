@@ -32,7 +32,8 @@ class ProductModifierTest extends \PHPUnit_Framework_TestCase
      */
     public function testModify()
     {
-        $shopId = 1;
+        $shopId = 0;
+        $store_id = 1;
 
         /** @var CatalogProductIndexPrice $price */
         $price = $this->getMockForAbstractClass('ONGR\MagentoConnectorBundle\Entity\CatalogProductIndexPrice');
@@ -62,6 +63,11 @@ class ProductModifierTest extends \PHPUnit_Framework_TestCase
         $text->setValue('nothing');
         $text->setStore($shopId + 1);
         $textAttributes[] = $text;
+
+        $websiteId = $this->getMockForAbstractClass('ONGR\MagentoConnectorBundle\Entity\CatalogProductWebsite');
+        $websiteId->setId(1);
+        $websiteId->setWebsiteId(0);
+        $websiteIdArray[] = $websiteId;
 
         /** @var CatalogProductEntityVarchar $varchar */
         $varchar = $this->getMockForAbstractClass('ONGR\MagentoConnectorBundle\Entity\CatalogProductEntityVarchar');
@@ -135,7 +141,9 @@ class ProductModifierTest extends \PHPUnit_Framework_TestCase
             ->addPrice($price)
             ->setTextAttributes($textAttributes)
             ->setVarcharAttributes($varcharAttributes)
-            ->addCategory($categoryCross);
+            ->addCategory($categoryCross)
+            ->addWebsiteId($websiteId);
+
 
         $categoryObject = new CategoryObject();
         $categoryObject->setId(1);
@@ -170,7 +178,7 @@ class ProductModifierTest extends \PHPUnit_Framework_TestCase
             'modify'
         );
         $method->setAccessible(true);
-        $method->invoke(new ProductModifier($shopId), $item);
+        $method->invoke(new ProductModifier($store_id, $shopId), $item);
 
         $this->assertEquals($expectedDocument, $document);
     }

@@ -105,7 +105,7 @@ class CategoryModifier extends AbstractImportModifyEventListener
         $varcharAttributes = $entity->getVarcharAttributes();
 
         foreach ($varcharAttributes as $attribute) {
-            if ($this->storeId !== $attribute->getStore()) {
+            if ($this->storeId !== $attribute->getStore() && $attribute->getStore() !== 0) {
                 continue;
             }
             /** @var CatalogCategoryEntityVarchar $attribute */
@@ -114,7 +114,7 @@ class CategoryModifier extends AbstractImportModifyEventListener
                     $document->setTitle($attribute->getValue());
                     break;
                 case self::CATEGORY_URL_PATH:
-                    $document->addUrlString($attribute->getValue());
+                    $document->setUrlString($attribute->getValue());
                     break;
                 default:
                     // Do nothing.
@@ -132,7 +132,7 @@ class CategoryModifier extends AbstractImportModifyEventListener
         $integerAttributes = $entity->getIntegerAttributes();
 
         foreach ($integerAttributes as $attribute) {
-            if ($this->storeId !== $attribute->getStore()) {
+            if ($this->storeId !== $attribute->getStore() && $attribute->getStore() !== 0) {
                 continue;
             }
             /** @var CatalogCategoryEntityInt $attribute */

@@ -93,6 +93,13 @@ abstract class CatalogProductEntity
     protected $categories;
 
     /**
+     * @var CatalogProductWebsite[]
+     *
+     * @ORM\OneToMany(targetEntity="CatalogProductWebsite", mappedBy="product")
+     */
+    protected $websiteIds;
+
+    /**
      * @return CatalogCategoryProduct[]
      */
     public function getCategories()
@@ -435,5 +442,51 @@ abstract class CatalogProductEntity
         if ($key !== false) {
             unset($array[$key]);
         }
+    }
+
+    /**
+     * @return CatalogProductWebsiteEntity[]
+     */
+    public function getWebsiteIds()
+    {
+        return $this->websiteIds;
+    }
+
+    /**
+     * @param CatalogProductWebsiteEntity[] $websiteIds
+     *
+     * @return self
+     */
+    public function setWebsiteIds($websiteIds)
+    {
+        $this->websiteIds = $websiteIds;
+
+        return $this;
+    }
+
+    /**
+     * @param CatalogProductWebsite $websiteId
+     *
+     * @return self
+     */
+    public function addWebsiteId($websiteId)
+    {
+        $this->websiteIds[] = $websiteId;
+
+        return $this;
+    }
+
+    /**
+     * Removes price from websiteIds ArrayColection.
+     *
+     * @param CatalogProductWebsite $websiteId
+     *
+     * @return self
+     */
+    public function removeWebsiteId($websiteId)
+    {
+        $this->removeElement($websiteId, $this->websiteIds);
+
+        return $this;
     }
 }

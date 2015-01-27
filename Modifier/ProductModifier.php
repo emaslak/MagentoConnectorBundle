@@ -11,6 +11,7 @@
 
 namespace ONGR\MagentoConnectorBundle\Modifier;
 
+use Exception;
 use ONGR\ConnectionsBundle\EventListener\AbstractImportModifyEventListener;
 use ONGR\ConnectionsBundle\Pipeline\Item\AbstractImportItem;
 use ONGR\MagentoConnectorBundle\Document\CategoryObject;
@@ -43,11 +44,18 @@ class ProductModifier extends AbstractImportModifyEventListener
     protected $storeId;
 
     /**
-     * @param int $storeId
+     * @var int
      */
-    public function __construct($storeId)
+    protected $shopId;
+
+    /**
+     * @param int $storeId
+     * @param int $shopId
+     */
+    public function __construct($storeId, $shopId)
     {
         $this->storeId = $storeId;
+        $this->shopId = $shopId;
     }
 
     /**
@@ -71,15 +79,18 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     protected function transform(ProductDocument $document, CatalogProductEntity $entity)
     {
-        $document->setId($entity->getId());
-        $document->setUrls([]);
-        $document->setExpiredUrls([]);
-        $document->setSku($entity->getSku());
+        if (in_array($this->shopId, $this->getWebIdArray($entity))) {
+            $document->setId($entity->getId());
+            $document->setUrls([]);
+            $document->setExpiredUrls([]);
+            $document->setSku($entity->getSku());
 
-        $this->addPrice($entity, $document);
-        $this->addTextAttributes($entity, $document);
-        $this->addVarcharAttributes($entity, $document);
-        $this->addCategories($entity, $document);
+            $this->addPrice($entity, $document);
+            $this->addTextAttributes($entity, $document);
+            $this->addVarcharAttributes($entity, $document);
+
+            $this->addCategories($entity, $document);
+        }
     }
 
     /**
@@ -106,10 +117,9 @@ class ProductModifier extends AbstractImportModifyEventListener
     public function addTextAttributes($entity, ProductDocument $document)
     {
         $textAttributes = $entity->getTextAttributes();
-
         /** @var CatalogProductEntityText $attribute */
         foreach ($textAttributes as $attribute) {
-            if ($this->storeId !== $attribute->getStore()) {
+            if ($this->storeId !== $attribute->getStore() && $attribute->getStore() !== 0) {
                 continue;
             }
             switch ($attribute->getAttributeId()) {
@@ -138,7 +148,7 @@ class ProductModifier extends AbstractImportModifyEventListener
 
         /** @var CatalogProductEntityVarchar $attribute */
         foreach ($varcharAttributes as $attribute) {
-            if ($this->storeId !== $attribute->getStore()) {
+            if ($this->storeId !== $attribute->getStore() && $attribute->getStore() !== 0) {
                 continue;
             }
             switch ($attribute->getAttributeId()) {
@@ -203,5 +213,23 @@ class ProductModifier extends AbstractImportModifyEventListener
         }
 
         $document->setCategories($documentCategories);
+    }
+
+    /**
+     * Get product websites id array.
+     *
+     * @param CatalogProductEntity $entity
+     *
+     * @return array
+     */
+    public function getWebIdArray($entity)
+    {
+        $webSiteIds = $entity->getWebsiteIds();
+        $webSiteArray = [];
+        foreach ($webSiteIds as $value) {
+            $webSiteArray[] = $value->getWebsiteId();
+        }
+
+        return $webSiteArray;
     }
 }
