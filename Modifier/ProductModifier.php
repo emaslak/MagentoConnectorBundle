@@ -79,7 +79,7 @@ class ProductModifier extends AbstractImportModifyEventListener
      * @param CatalogProductEntity $entity
      *
      * @throws ItemSkipException
-      */
+     */
     protected function transform(ProductDocument $document, CatalogProductEntity $entity)
     {
         if (in_array($this->shopId, $this->getWebIdArray($entity)) && $this->isProductActive($entity)) {
@@ -87,7 +87,7 @@ class ProductModifier extends AbstractImportModifyEventListener
             $document->setUrls([]);
             $document->setExpiredUrls([]);
             $document->setSku($entity->getSku());
-            
+
             $this->addPrice($entity, $document);
             $this->addTextAttributes($entity, $document);
             $this->addVarcharAttributes($entity, $document);
@@ -106,15 +106,13 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     public function isProductActive(CatalogProductEntity $entity)
     {
-        $integerAttributes = $entity->getIntegerAttributes();
+        $integerAttributesArray = $entity->getIntegerAttributes();
 
-        foreach ($integerAttributes as $attribute) {
-            if ($attribute->getAttributeId() === self::PRODUCT_IS_ACTIVE) {
-                if ($attribute->getValue() !== 1) {
-                    return false;
-                } else {
-                    return true;
-                }
+        if (isset($integerAttributesArray[self::PRODUCT_IS_ACTIVE])) {
+            if ($integerAttributesArray[self::PRODUCT_IS_ACTIVE] !== 1) {
+                return false;
+            } else {
+                return true;
             }
         }
 
@@ -252,12 +250,6 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     public function getWebIdArray($entity)
     {
-        $webSiteIds = $entity->getWebsiteIds();
-        $webSiteArray = [];
-        foreach ($webSiteIds as $value) {
-            $webSiteArray[] = $value->getWebsiteId();
-        }
-
-        return $webSiteArray;
+        return $entity->getWebsiteIdsArray();
     }
 }

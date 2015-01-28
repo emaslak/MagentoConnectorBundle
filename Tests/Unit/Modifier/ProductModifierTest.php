@@ -151,7 +151,6 @@ class ProductModifierTest extends \PHPUnit_Framework_TestCase
             ->addWebsiteId($websiteId)
             ->setIntegerAttributes($integerAttributes);
 
-
         $categoryObject = new CategoryObject();
         $categoryObject->setId(1);
         $categoryObject->setPath('3');

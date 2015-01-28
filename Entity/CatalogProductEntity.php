@@ -194,6 +194,23 @@ abstract class CatalogProductEntity
     }
 
     /**
+     * Return array with integer entity attributes.
+     *
+     * @return array
+     */
+    public function integerAttributesArray()
+    {
+        $integerAttributes = $this->getIntegerAttributes();
+        $integerAttributesArray = [];
+
+        foreach ($integerAttributes as $attribute) {
+            $integerAttributesArray[$attribute->getAttributeId()] = $attribute->getValue();
+        }
+
+        return $integerAttributesArray;
+    }
+
+    /**
      * @param CatalogProductEntityInt[] $integerAttributes
      *
      * @return self
@@ -450,6 +467,20 @@ abstract class CatalogProductEntity
     public function getWebsiteIds()
     {
         return $this->websiteIds;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWebsiteIdsArray()
+    {
+        $webSiteIds = $this->getWebsiteIds();
+        $webSiteArray = [];
+        foreach ($webSiteIds as $value) {
+            $webSiteArray[] = $value->getWebsiteId();
+        }
+
+        return $webSiteArray;
     }
 
     /**
