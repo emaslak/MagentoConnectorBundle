@@ -82,18 +82,20 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     protected function transform(ProductDocument $document, CatalogProductEntity $entity)
     {
-        if (in_array($this->shopId, $this->getWebIdArray($entity)) && $this->isProductActive($entity)) {
+        if (in_array($this->shopId, $this->getWebIdArray($entity))) {
             $document->setId($entity->getId());
             $document->setUrls([]);
             $document->setExpiredUrls([]);
             $document->setSku($entity->getSku());
 
-            $this->addPrice($entity, $document);
-            $this->addTextAttributes($entity, $document);
-            $this->addVarcharAttributes($entity, $document);
-            $this->addCategories($entity, $document);
-        } else {
-            throw new ItemSkipException('Product ' . $entity->getId() . ' is disabled, so it wont be imported.');
+            if ($this->isProductActive($entity)) {
+                $this->addPrice($entity, $document);
+                $this->addTextAttributes($entity, $document);
+                $this->addVarcharAttributes($entity, $document);
+                $this->addCategories($entity, $document);
+            } else {
+                throw new ItemSkipException('Product ' . $entity->getId() . ' is disabled, so it wont be imported.');
+            }
         }
     }
 
@@ -106,7 +108,7 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     public function isProductActive(CatalogProductEntity $entity)
     {
-        $integerAttributesArray = $entity->getIntegerAttributes();
+        $integerAttributesArray = $entity->integerAttributesArray();
 
         if (isset($integerAttributesArray[self::PRODUCT_IS_ACTIVE])) {
             if ($integerAttributesArray[self::PRODUCT_IS_ACTIVE] !== 1) {
@@ -250,6 +252,12 @@ class ProductModifier extends AbstractImportModifyEventListener
      */
     public function getWebIdArray($entity)
     {
-        return $entity->getWebsiteIdsArray();
+        $webSiteIds = $entity->getWebsiteIds();
+        $webSiteArray = [];
+        foreach ($webSiteIds as $value) {
+            $webSiteArray[] = $value->getWebsiteId();
+        }
+
+        return $webSiteArray;
     }
 }
